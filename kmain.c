@@ -64,6 +64,14 @@ unsigned int characterLocation = 0;
      *  @return 0 if the transmit FIFO queue is not empty
      *          1 if the transmit FIFO queue is empty
      */
+
+
+
+
+
+
+
+
     int serial_is_transmit_fifo_empty(unsigned int com)
     {
         /* 0x20 = 0010 0000 */
@@ -132,21 +140,23 @@ void fb_move_cursor(unsigned short pos) {
     outb(FB_DATA_PORT,    pos & 0x00FF);
 }
 
-void fb_write(char *buf, unsigned int len) {
+void fb_write(char *buf, unsigned int len, unsigned int backgroundColor, unsigned int frontColor) {
     unsigned int i;
     for(i = 0; i < len; i++) {
-        if(i<10){ //color for first sentence DELETE if statement and just put in: 
+//        if(i<10){ //color for first sentence DELETE if statement and just put in: 
             //fb_write_cell(characterLocation, buf[i], CYAN, WHITE);
 
 
-            fb_write_cell(characterLocation, buf[i], CYAN, WHITE);
-        }	
-        else if(i>=10 && i<44){ //color 2nd sentence
+ //           fb_write_cell(characterLocation, buf[i], CYAN, WHITE);
+        fb_write_cell(characterLocation, buf[i], backgroundColor, frontColor);
+//        }	
+/**        else if(i>=10 && i<44){ //color 2nd sentence
 	       fb_write_cell(characterLocation, buf[i], MAGENTA, GREEN);
         }
         else{
         	fb_write_cell(characterLocation, buf[i], BLUE, WHITE);
         }
+*/
         characterLocation += 2;
     }
     fb_move_cursor(characterLocation/2);
@@ -181,12 +191,24 @@ void log(char *buf, unsigned int len, unsigned int type){
     serial_write(buf, len);
 }
 
+void loadGDTIntoProcessor(struct gdt table){
+        loadgdt(table);
+        char successStr[] = " Hey Casky! I have loaded into the processor!";
+        unsigned int size_SuccessStr = sizeof(successStr)-1;
+        fb_write(successStr, size_SuccessStr, CYAN, WHITE);
+}
+
 int kmain() {
     char str[] = "Hi Casky. Thanks for answering my questions! This is a test. Thanks for answering my questions! Hi Casky! Thanks for answering my questions! bye Casky!";
     unsigned int size_str = sizeof(str)-1;
-    fb_write(str, size_str);
+    fb_write(str, size_str, BLUE, WHITE);
    // serial_write(str, size_str);
     log(str, size_str, INFO);
+    struct gdt table1;
+    table1.address = 1001;
+    table1.size = 0xFFFF;
+    loadGDTIntoProcessor(table1);
+    //log(loadGDTIntoProcessor)
     return 0;
 }
 

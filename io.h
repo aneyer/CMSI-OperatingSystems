@@ -19,6 +19,18 @@ void outb(unsigned short port, unsigned char data);
      *  @param  port The address of the I/O port
      *  @return      The read byte
      */
-    unsigned char inb(unsigned short port);
+
+unsigned char inb(unsigned short port);
+
+
+
+struct gdt {
+    unsigned int address;
+    unsigned short size;
+} __attribute__((packed));
+
+
+void loadgdt(struct gdt table);
+
 
 #endif /* INCLUDE_IO_H */
